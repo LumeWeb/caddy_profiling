@@ -7,7 +7,7 @@ import (
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/grafana/pyroscope-go"
-	"github.com/mohammed90/caddy_profiling"
+	"go.lumeweb.com/caddy_profiling/types"
 )
 
 func init() {
@@ -51,7 +51,7 @@ type App struct {
 	// is configured as a child module. The `profile_types` field is inherited if not configured explicitly.
 	// If `pyroscope` is configured as an app, all the parameters are instated as-is.
 	// Note: Pyroscope agent does not support `threadcreate` profile type, hence ignored.
-	Parameters *caddy_profiling.Parameters `json:"parameters,omitempty"`
+	Parameters *types.Parameters `json:"parameters,omitempty"`
 
 	// TODO: decide no the inclusion of HTTP headers and whether they're beneficial
 	// Custom HTTP headers to be included. The config value may be a [placeholder](https://caddyserver.com/docs/conventions#placeholders).
@@ -83,7 +83,7 @@ func (*ProfilingApp) CaddyModule() caddy.ModuleInfo {
 // SetProfilingParameter sets the enabled Pyroscope profile types as configured by the `profiling` app.
 // If the pyroscope app is configured with `profile_types`, then the ones specific to pyroscope take priority and the
 // ones passed from the `profiling` app are ignored.
-func (a *App) SetProfilingParameter(parameters caddy_profiling.Parameters) {
+func (a *App) SetProfilingParameter(parameters types.Parameters) {
 	log.Printf("parameters: %+v", parameters)
 	if a.Parameters != nil {
 		log.Printf("Parameters is not nil")
@@ -92,17 +92,17 @@ func (a *App) SetProfilingParameter(parameters caddy_profiling.Parameters) {
 	for _, p := range parameters.ProfileTypes {
 		log.Printf("p = %s", p)
 		switch p {
-		case caddy_profiling.CPU:
+		case types.CPU:
 			a.profileTypes = append(a.profileTypes, pyroscope.ProfileCPU)
-		case caddy_profiling.Goroutine:
+		case types.Goroutine:
 			a.profileTypes = append(a.profileTypes, pyroscope.ProfileGoroutines)
-		case caddy_profiling.Heap, caddy_profiling.Allocs:
+		case types.Heap, types.Allocs:
 			a.profileTypes = append(a.profileTypes, pyroscope.ProfileAllocObjects, pyroscope.ProfileInuseSpace, pyroscope.ProfileAllocSpace)
-		case caddy_profiling.Threadcreate:
+		case types.Threadcreate:
 			a.logger.Infof("unsupported ProfileType: %s", p)
-		case caddy_profiling.Block:
+		case types.Block:
 			a.profileTypes = append(a.profileTypes, pyroscope.ProfileBlockCount, pyroscope.ProfileBlockDuration)
-		case caddy_profiling.Mutex:
+		case types.Mutex:
 			a.profileTypes = append(a.profileTypes, pyroscope.ProfileMutexCount, pyroscope.ProfileMutexDuration)
 		}
 	}
@@ -170,5 +170,5 @@ var _ caddy.Module = (*App)(nil)
 var _ caddy.Module = (*ProfilingApp)(nil)
 var _ caddy.Provisioner = (*App)(nil)
 var _ caddy.App = (*App)(nil)
-var _ caddy_profiling.Profiler = (*App)(nil)
-var _ caddy_profiling.ProfilingParameterSetter = (*App)(nil)
+var _ types.Profiler = (*App)(nil)
+var _ types.ProfilingParameterSetter = (*App)(nil)

@@ -1,40 +1,21 @@
 package caddy_profiling
 
-// Common profiling paramters
-type Parameters struct {
-	// The hertz rate for CPU profiling, as accepted by the [`SetCPUProfileRate`](https://pkg.go.dev/runtime#SetCPUProfileRate) function.
-	CPUProfileRate int `json:"cpu_profile_rate,omitempty"`
+// Re-export types from the types package for backwards compatibility.
+// Existing code importing caddy_profiling.Parameters etc. will continue to work.
+import "go.lumeweb.com/caddy_profiling/types"
 
-	// The hertz rate for CPU profiling, as accepted by the [`SetBlockProfileRate`](https://pkg.go.dev/runtime#SetBlockProfileRate) function.
-	BlockProfileRate int `json:"block_profile_rate,omitempty"`
-
-	// The the fraction of mutex contention events, as accepted by the [`SetMutexProfileFraction`](https://pkg.go.dev/runtime#SetMutexProfileFraction) function.
-	MutexProfileFraction int `json:"mutex_profile_fraction,omitempty"`
-
-	// The enabled runtime profile types. The accepted values are: cpu, goroutine, heap, allocs, threadcreate, block, mutex.
-	ProfileTypes []ProfileType `json:"profile_types,omitempty"`
-}
-
-type ProfileType string
+type Parameters = types.Parameters
+type ProfileType = types.ProfileType
 
 const (
-	CPU          ProfileType = "cpu"
-	Goroutine    ProfileType = "goroutine"
-	Heap         ProfileType = "heap"
-	Allocs       ProfileType = "allocs"
-	Threadcreate ProfileType = "threadcreate"
-	Block        ProfileType = "block"
-	Mutex        ProfileType = "mutex"
+	CPU          = types.CPU
+	Goroutine    = types.Goroutine
+	Heap         = types.Heap
+	Allocs       = types.Allocs
+	Threadcreate = types.Threadcreate
+	Block        = types.Block
+	Mutex        = types.Mutex
 )
 
-// Signals whether a guest profiling module accepts inheriting the profiling parameters
-type ProfilingParameterSetter interface {
-	SetProfilingParameter(Parameters)
-}
-
-// Guest moduels of the `profiling` app are expected to implement this interface
-// and be registered in the `profiling.profiler` caddy namespace
-type Profiler interface {
-	Start() error
-	Stop() error
-}
+type ProfilingParameterSetter = types.ProfilingParameterSetter
+type Profiler = types.Profiler
