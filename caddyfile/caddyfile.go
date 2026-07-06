@@ -271,11 +271,20 @@ func parseProfilingOption(d *caddyfileadapter.Dispenser, _ any) (any, error) {
 
 // wrapProfiler wraps a profiler app config as a json.RawMessage suitable for
 // the profiling app's ProfilersRaw field, using the inline_key=profiler format.
+// The profiler struct fields must be flattened at the top level alongside the
+// "profiler" key — not nested under an "App" key — because Caddy's inline_key
+// unmarshaling expects them as siblings.
 func wrapProfiler(name string, appConfig any) (json.RawMessage, error) {
-	return json.Marshal(map[string]json.RawMessage{
-		"profiler": caddyconfig.JSON(name, nil),
-		"App":      caddyconfig.JSON(appConfig, nil),
-	})
+	raw, err := json.Marshal(appConfig)
+	if err != nil {
+		return nil, err
+	}
+	m := map[string]json.RawMessage{}
+	if err := json.Unmarshal(raw, &m); err != nil {
+		return nil, err
+	}
+	m["profiler"] = caddyconfig.JSON(name, nil)
+	return json.Marshal(m)
 }
 
 // parseNestedPyroscope parses a pyroscope sub-block within the profiling app.
