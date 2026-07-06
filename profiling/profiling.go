@@ -7,7 +7,7 @@ import (
 	"runtime"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/mohammed90/caddy_profiling"
+	"go.lumeweb.com/caddy_profiling/types"
 )
 
 func init() {
@@ -16,10 +16,10 @@ func init() {
 
 // The `profiling` app hosts the collection of push-based profiling agents with common profiling parameters acorss the Caddy instance.
 type App struct {
-	caddy_profiling.Parameters
+	types.Parameters
 	ProfilersRaw []json.RawMessage `json:"profilers,omitempty" caddy:"namespace=profiling.profiler inline_key=profiler"`
 
-	profilers []caddy_profiling.Profiler
+	profilers []types.Profiler
 }
 
 // CaddyModule implements caddy.Module
@@ -39,10 +39,10 @@ func (a *App) Provision(ctx caddy.Context) error {
 		return fmt.Errorf("loading profiler module: %v", err)
 	}
 	for _, mod := range mods.([]any) {
-		if m, ok := mod.(caddy_profiling.ProfilingParameterSetter); ok {
+		if m, ok := mod.(types.ProfilingParameterSetter); ok {
 			m.SetProfilingParameter(a.Parameters)
 		}
-		a.profilers = append(a.profilers, mod.(caddy_profiling.Profiler))
+		a.profilers = append(a.profilers, mod.(types.Profiler))
 	}
 
 	// set the values here in case any of the child profilers changed them
@@ -54,7 +54,7 @@ func (a *App) Provision(ctx caddy.Context) error {
 
 // Starts all the child profilers to initiate the periodic push
 func (a *App) Start() (err error) {
-	var startedProfilers []caddy_profiling.Profiler
+	var startedProfilers []types.Profiler
 	for _, p := range a.profilers {
 		e := p.Start()
 		if e != nil {

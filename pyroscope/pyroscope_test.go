@@ -4,16 +4,16 @@ import (
 	"testing"
 
 	"github.com/grafana/pyroscope-go"
-	"github.com/mohammed90/caddy_profiling"
+	"go.lumeweb.com/caddy_profiling/types"
 )
 
 func TestApp_SetProfilingParameter(t *testing.T) {
 	type fields struct {
-		Parameters   *caddy_profiling.Parameters
+		Parameters   *types.Parameters
 		profileTypes []pyroscope.ProfileType
 	}
 	type args struct {
-		parameters caddy_profiling.Parameters
+		parameters types.Parameters
 	}
 	tests := []struct {
 		name   string
@@ -23,14 +23,14 @@ func TestApp_SetProfilingParameter(t *testing.T) {
 		{
 			name: "",
 			fields: fields{
-				Parameters: &caddy_profiling.Parameters{
-					ProfileTypes: []caddy_profiling.ProfileType{"goroutine", "allocs", "block", "mutex"},
+				Parameters: &types.Parameters{
+					ProfileTypes: []types.ProfileType{"goroutine", "allocs", "block", "mutex"},
 				},
 				profileTypes: []pyroscope.ProfileType{},
 			},
 			args: args{
-				parameters: caddy_profiling.Parameters{
-					ProfileTypes: []caddy_profiling.ProfileType{},
+				parameters: types.Parameters{
+					ProfileTypes: []types.ProfileType{},
 				},
 			},
 		},

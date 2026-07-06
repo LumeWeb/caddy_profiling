@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/caddyserver/caddy/v2"
-	"github.com/mohammed90/caddy_profiling"
+	"go.lumeweb.com/caddy_profiling/types"
 	"github.com/profefe/profefe/agent"
 	"go.uber.org/zap"
 )
@@ -38,7 +38,7 @@ type App struct {
 	// The paramters cpu_profile_rate, block_profile_rate, and mutex_profile_fraction are inherited from the `profiling` app if `profefe`
 	// is configured as a child module. The `profile_types` field is inherited if not configured explicitly.
 	// If `profefe` is configured as an app, all the parameters are instated as-is.
-	Parameters *caddy_profiling.Parameters `json:"parameters,omitempty"`
+	Parameters *types.Parameters `json:"parameters,omitempty"`
 
 	profefeOptions []agent.Option
 
@@ -74,23 +74,23 @@ func (*ProfilingApp) CaddyModule() caddy.ModuleInfo {
 // SetProfilingParameter sets the enabled Profefe profile types as configured by the `profiling` app.
 // If the profefe app is configured with `profile_types`, then the ones specific to profefe take priority and the
 // ones passed from the `profiling` app are ignored.
-func (a *App) SetProfilingParameter(parameters caddy_profiling.Parameters) {
+func (a *App) SetProfilingParameter(parameters types.Parameters) {
 	if a.Parameters != nil {
 		parameters = *a.Parameters
 	}
 	for _, p := range parameters.ProfileTypes {
 		switch p {
-		case caddy_profiling.CPU:
+		case types.CPU:
 			a.profefeOptions = append(a.profefeOptions, agent.WithCPUProfile(defaultDuration))
-		case caddy_profiling.Goroutine:
+		case types.Goroutine:
 			a.profefeOptions = append(a.profefeOptions, agent.WithGoroutineProfile())
-		case caddy_profiling.Heap, caddy_profiling.Allocs:
+		case types.Heap, types.Allocs:
 			a.profefeOptions = append(a.profefeOptions, agent.WithHeapProfile())
-		case caddy_profiling.Threadcreate:
+		case types.Threadcreate:
 			a.profefeOptions = append(a.profefeOptions, agent.WithThreadcreateProfile())
-		case caddy_profiling.Block:
+		case types.Block:
 			a.profefeOptions = append(a.profefeOptions, agent.WithBlockProfile())
-		case caddy_profiling.Mutex:
+		case types.Mutex:
 			a.profefeOptions = append(a.profefeOptions, agent.WithMutexProfile())
 		}
 	}
@@ -145,5 +145,5 @@ var _ caddy.Module = (*App)(nil)
 var _ caddy.App = (*App)(nil)
 var _ caddy.Module = (*ProfilingApp)(nil)
 var _ caddy.Provisioner = (*App)(nil)
-var _ caddy_profiling.Profiler = (*App)(nil)
-var _ caddy_profiling.ProfilingParameterSetter = (*App)(nil)
+var _ types.Profiler = (*App)(nil)
+var _ types.ProfilingParameterSetter = (*App)(nil)
